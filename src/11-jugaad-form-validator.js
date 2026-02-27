@@ -63,4 +63,83 @@
  */
 export function validateForm(formData) {
   // Your code here
+  const errors = {};
+  // name
+  const name = formData.name?.trim() ?? "";
+  if (typeof name !== "string" || name.length < 2 || name.length > 50) {
+    errors.name = "Name must be 2-50 characters";
+  }
+  // email
+  const email = formData.email ?? "";
+  if (typeof email !== "string") {
+    errors.email = "Invalid email format";
+  } else {
+    const atIndex = email.indexOf("@");
+    const lastIndex = email.lastIndexOf("@");
+    const dotIndex = email.indexOf(".", atIndex);
+
+    if (atIndex === -1 || atIndex !== lastIndex || dotIndex === -1) {
+      errors.email = "Invalid email format";
+    }
+  }
+  //   phone
+
+  const phone = formData.phone ?? "";
+  if (typeof phone !== "string" || phone.length !== 10) {
+    errors.phone = "Invalid Indian phone number";
+  } else {
+    const firstChar = phone[0];
+    if (!["6", "7", "8", "9"].includes(firstChar)) {
+      errors.phone = "Invalid Indian phone number";
+    } else {
+      for (let i = 0; i < phone.length; i++) {
+        if (phone[i] < "0" || phone[i] > "9") {
+          errors.phone = "Invalid Indian phone number";
+          break;
+        }
+      }
+    }
+  }
+
+  // age
+  let age = formData.age;
+  if (typeof age === "string") {
+    age = parseInt(age);
+  }
+  if (isNaN(age) || !Number.isInteger(age) || age < 16 || age > 100) {
+    errors.age = "Age must be an integer between 16 and 100";
+  }
+
+  // pincode: must be a string of exactly 6 digits, NOT starting with "0"
+
+  const pincode = formData.pincode ?? "";
+  if (
+    typeof pincode !== "string" ||
+    pincode.length !== 6 ||
+    pincode.startsWith("0")
+  ) {
+    errors.pincode = "Invalid Indian pincode";
+  }
+  for (let i = 0; i < pincode.length; i++) {
+    if (pincode[i] < "0" || pincode[i] > "9") {
+      errors.pincode = "Invalid Indian pincode";
+      break;
+    }
+  }
+
+  //  state
+  const state = formData.state?.trim() ?? "";
+  if (typeof state !== "string" || state.length === 0) {
+    errors.state = "State is required";
+  }
+  // t/c
+  const agreeTerms = formData.agreeTerms;
+
+  if (Boolean(!agreeTerms)) {
+    errors.agreeTerms = "Must agree to terms";
+  }
+  return {
+    isValid: Object.keys(errors).length === 0,
+    errors,
+  };
 }

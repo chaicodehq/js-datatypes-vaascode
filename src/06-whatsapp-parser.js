@@ -40,4 +40,67 @@
  */
 export function parseWhatsAppMessage(message) {
   // Your code here
+  if (typeof message !== "string") return null;
+  if (
+    !message.includes(" - ") ||
+    !message.includes(": ") ||
+    !message.includes(", ")
+  )
+    return null;
+
+  // extract date
+
+  const dateIndex = message.indexOf(", ");
+  if (dateIndex === -1) return null;
+  const date = message.slice(0, dateIndex);
+
+  // extract time
+  const timeIndex = message.indexOf(" - ");
+  if (timeIndex === -1) return null;
+  const time = message.slice(dateIndex + 2, timeIndex);
+
+  // extract sender
+  const senderStart = timeIndex + 3;
+  const senderEnd = message.indexOf(": ", senderStart);
+  if (senderEnd === -1) return null;
+  const sender = message.slice(senderStart, senderEnd);
+
+  //  extract text
+  const text = message.slice(senderEnd + 2).trim();
+
+  // extract word & length
+
+  // const countIndex = text.split(" ").fliter((word) => word !== "").length;
+  const splitCount = text.split(" ");
+  const filterWord = splitCount.filter(function (word) {
+    return word !== "";
+  });
+  const wordCount = filterWord.length;
+
+  //  sentiment
+
+  const lowerText = text.toLowerCase();
+  let sentiment = "neutral";
+  if (
+    lowerText.includes("😂") ||
+    lowerText.includes(":)") ||
+    lowerText.includes("haha")
+  ) {
+    sentiment = "funny";
+  } else if (
+    lowerText.includes("❤") ||
+    lowerText.includes("love") ||
+    lowerText.includes("pyaar")
+  ) {
+    sentiment = "love";
+  }
+
+  return {
+    date,
+    time,
+    sender,
+    text,
+    wordCount,
+    sentiment,
+  };
 }

@@ -48,4 +48,81 @@
  */
 export function analyzeUPITransactions(transactions) {
   // Your code here
+  if (!Array.isArray(transactions) || transactions.length === 0) return null;
+
+  const validTransactions = transactions.filter(
+    (txn) =>
+      typeof txn.amount === "number" &&
+      txn.amount > 0 &&
+      (txn.type === "credit" || txn.type === "debit"),
+  );
+
+  if (validTransactions.length === 0) {
+    return null;
+  }
+
+  const totalCredit = validTransactions
+    .filter((txn) => txn.type === "credit")
+    .reduce((sum, txn) => sum + txn.amount, 0);
+
+  const totalDebit = validTransactions
+    .filter((txn) => txn.type === "debit")
+    .reduce((sum, txn) => sum + txn.amount, 0);
+
+  const netBalance = totalCredit - totalDebit;
+  const transactionCount = validTransactions.length;
+
+  const totalAmount = validTransactions.reduce(
+    (sum, txn) => sum + txn.amount,
+    0,
+  );
+
+  // avgTransaction: Math.round(sum of all valid amounts / transactionCount)
+  const avgTransaction = Math.round(totalAmount / transactionCount);
+
+  const highestTransaction = validTransactions.reduce((max, txn) =>
+    txn.amount > max.amount ? txn : max,
+  );
+
+  // category
+  const categoryBreakdown = validTransactions.reduce((acc, txn) => {
+    acc[txn.category] = (acc[txn.category] || 0) + txn.amount;
+    return acc;
+  }, {});
+
+  // frequentContact: the "to" field value that appears most often
+  //  *       (if tie, return whichever appears first)
+
+  let contactCounts = {};
+
+  validTransactions.forEach((txn) => {
+    contactCounts[txn.to] = (contactCounts[txn.to] || 0) + 1;
+  });
+
+  let frequentContact = "";
+  let maxCount = 0;
+  for (const name in contactCounts) {
+    if (contactCounts[name] > maxCount) {
+      maxCount = contactCounts[name];
+      frequentContact = name;
+    }
+  }
+  // allAbove100: boolean, true if every valid transaction amount > 100 (use every)
+  const allAbove100 = validTransactions.every((txn) => txn.amount > 100);
+  const hasLargeTransaction = validTransactions.some(
+    (txn) => txn.amount >= 5000,
+  );
+
+  return {
+    totalCredit,
+    totalDebit,
+    netBalance,
+    transactionCount,
+    avgTransaction,
+    highestTransaction,
+    categoryBreakdown,
+    frequentContact,
+    allAbove100,
+    hasLargeTransaction,
+  };
 }
